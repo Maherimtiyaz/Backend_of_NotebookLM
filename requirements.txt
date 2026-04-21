@@ -1,0 +1,5 @@
+# project tools requirements
+fastapi
+uvicorn
+pydantic
+sqlalchemy
