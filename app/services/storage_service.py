@@ -40,3 +40,15 @@ async def delete_file(document_id: str) -> bool:
     except Exception as e:  
         raise Exception(f"Error deleting file: {str(e)}")
     
+# function to read file
+async def read_file(document_id: str) -> str:
+        try:
+            for filename in os.listdir("storage"):
+                if filename.startswith(document_id):
+                    file_path = os.path.join("storage", filename)
+                    with open(file_path, "r") as file:
+                        return file.read()
+            raise FileNotFoundError("File not found")
+        except Exception as e:
+            raise Exception(f"Error reading file: {str(e)}")
+    
