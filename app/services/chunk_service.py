@@ -1,6 +1,3 @@
-# create chunk objects 
-# handle DB saving 
-
 import uuid
 from typing import List
 from app.models.chunk import Chunk
