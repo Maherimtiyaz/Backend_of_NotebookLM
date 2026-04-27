@@ -2,15 +2,13 @@ from typing import List
 from app.services.storage_service import read_file
 from app.services.document_service import (
     get_document_from_db,
-    save_chunks_to_db,
     mark_document_as_processed
 )
-from app.models.chunk import Chunk
-import uuid
+from app.services.chunk_service import create_chunks, save_chunks
 
 
 # -----------------------------
-# PURE FUNCTION (NO SIDE EFFECTS)
+# PURE FUNCTION
 # -----------------------------
 def split_into_chunks(text: str, chunk_size: int = 1000) -> List[str]:
     chunks = []
@@ -40,7 +38,7 @@ def process_document(document_id: str):
         }
 
     # 3. Read file from storage
-    file_bytes = read_file(document.filename)
+    file_bytes = read_file(document_id)
     if not file_bytes:
         raise ValueError("File could not be read from storage")
 
@@ -51,27 +49,18 @@ def process_document(document_id: str):
         raise ValueError("File decoding failed")
 
     # 5. Split into chunks
-    chunks = split_into_chunks(text)
+    chunks_texts = split_into_chunks(text)
 
-    if not chunks:
+    if not chunks_texts:
         return {
             "status": "no_content",
             "document_id": document_id
         }
-
-    # 6. Convert to Chunk objects
-    chunk_objects = []
-    for index, content in enumerate(chunks):
-        chunk = Chunk(
-            id=str(uuid.uuid4()),
-            document_id=document.id,
-            content=content,
-            chunk_index=index
-        )
-        chunk_objects.append(chunk)
-
-    # 7. Save chunks
-    save_chunks_to_db(chunk_objects)
+    
+    # 6. Create chunk objects
+    chunk_objects = create_chunks(document_id, chunks_texts)
+    # 7. Save chunks to DB
+    save_chunks(chunk_objects)
 
     # 8. Mark document as processed
     mark_document_as_processed(document_id)
