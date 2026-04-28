@@ -1,6 +1,7 @@
 # File defines the Document data structure in the database
 # import ORM base
 
+from app.db.database import Base
 from sqlalchemy import Column, String, ForeignKey
 from sqlalchemy.orm import DeclarativeBase, relationship
 
@@ -9,7 +10,7 @@ from sqlalchemy.orm import DeclarativeBase, relationship
 # ----------------------------------
 
 
-class Document(DeclarativeBase):
+class Document(Base):
     __tablename__ = "documents"
 
     id = Column(String, primary_key=True)
