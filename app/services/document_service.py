@@ -4,17 +4,21 @@
 # Functions: create_document(user_id, title, content). get_documents(user_id), delete_document(document_id, user_id)
 # Flow: Check user exists -> create document record -> store content -> return document
 
-from app.models import Document, User
+from app import db
+from app.models.document import Document
+from app.models.user import User
 import app.services as storage_service
+from app.db.database import SessionLocal
+from app.models.user import User
 import uuid
 
-
+db = SessionLocal()
 
 class DocumentService:
     @staticmethod
     async def create_document(user_id, title, file):
           # check if user exists
-        user = await User.get(id=user_id)
+        user = db.query(User).filter(User.id == user_id).first()
         if not user:
             raise ValueError("User not found")
         

@@ -1,7 +1,7 @@
 import uuid
 from typing import List
 from app.models.chunk import Chunk
-from app.services.document_service import save_chunks_to_db
+
 
 # -----------------------------
 # CREATE CHUNK OBJECTS
@@ -21,6 +21,7 @@ def create_chunks(document_id: str, chunk_texts: List[str]) -> List[Chunk]:
 # SAVE CHUNKS TO DB
 def save_chunks(chunks: List[Chunk]):
     save_chunks_to_db(chunks)
+    
 
 # DELETE CHUNKS FROM DB
 def delete_chunks(document_id: str):
@@ -28,3 +29,23 @@ def delete_chunks(document_id: str):
     pass
 
 
+## ADDED JUST FOR DEBUGGING PURPOSES
+
+# app/services/chunk_service.py
+
+from app.models.chunk import Chunk
+from app.db.database import SessionLocal
+
+def get_chunks_by_document(document_id: int):
+    db = SessionLocal()
+
+    try:
+        chunks = (
+            db.query(Chunk)
+            .filter(Chunk.document_id == document_id)
+            .order_by(Chunk.chunk_index)
+            .all()
+        )
+        return chunks
+    finally:
+        db.close()
