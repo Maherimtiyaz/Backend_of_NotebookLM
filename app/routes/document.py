@@ -6,19 +6,26 @@ from fastapi import Form
 # this groups all document-related endpoints under /documents
 router = APIRouter(prefix="/documents", tags=["documents"])
 
+
+# ----------------------------
+# HEALTH CHECK
+# ----------------------------
+@router.get("/health")
+def health():
+    return {"status": "ok"}
+
 # ----------------------------
 # CREATE DOCUMENT ENDPOINT
 # ----------------------------
 
-# define POST endpoint for cretaeing a document
-@router.post("/")
+@router.post("/upload")
 async def create_document(
     user_id: str = Form(...), 
     title: str = Form(...),
     file: UploadFile = File(...)):
     document_id = await DocumentService.create_document(user_id, title, file)
     return {
-       "message": "Document created successfully",
+       "message": "Document uploaded successfully",
        "document_id": document_id
    }
 
@@ -26,8 +33,7 @@ async def create_document(
 # GET DOCUMENTS ENDPOINT FOR USER
 # ---------------------------------
 
-# define GET endpoint for fetching documents of a user
-@router.get("/{user_id}")
+@router.get("/users/{user_id}")
 async def get_documents_by_user(user_id: str):
     documents = await DocumentService.get_documents_by_user(user_id)
     # service return list of documents
@@ -38,9 +44,23 @@ async def get_documents_by_user(user_id: str):
 # DELETE DOCUMENT ENDPOINT
 # ---------------------------------
 
-# define DELETE endpoint for deleting a document
 @router.delete("/{document_id}")
 async def delete_document(document_id: str):
     await DocumentService.delete_document(document_id)
     return {"message": "Document deleted successfully"}
 
+# ----------------------------
+# GET CHUNKS
+# ----------------------------
+@router.get("/{document_id}/chunks")
+async def get_document_chunks(document_id: str):
+    chunks = await DocumentService.get_chunks_by_document(document_id)
+
+    return [
+        {
+            "id": chunk.id,
+            "content": chunk.content,
+            "chunk_index": chunk.chunk_index
+        }
+        for chunk in chunks
+    ]
