@@ -10,6 +10,12 @@ router = APIRouter()
 def signup(user: UserCreate):
     return create_user(user)
 
+# User Login endpoint
+@router.get("/login")
+def login():
+    return {"message": "Login endpoint"}
+
+
 # route to get user details by user_id
 @router.get("/users/{user_id}")
 def get_user(user_id: int):

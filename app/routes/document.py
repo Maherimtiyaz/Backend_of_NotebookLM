@@ -1,6 +1,7 @@
 # creating a router for document-related endpoints
-from fastapi import APIRouter, Depends, UploadFile, File
-from app.services.document_service import DocumentService
+from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, Form
+from app.services.document_service import DocumentService, upload_document_service
+
 from fastapi import Form
 
 # this groups all document-related endpoints under /documents
@@ -64,3 +65,29 @@ async def get_document_chunks(document_id: str):
         }
         for chunk in chunks
     ]
+
+# ----------------------------
+# POST UPLOAD DOCUMENTS
+# ----------------------------
+
+@router.post("/upload")
+async def upload_document(
+    user_id: int = Form(...),
+    title: str = Form(...),
+    file: UploadFile = File(...)
+):
+
+    try:
+        result = await upload_document_service(
+            user_id=user_id,
+            title=title,
+            file=file
+        )
+
+        return result
+
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
